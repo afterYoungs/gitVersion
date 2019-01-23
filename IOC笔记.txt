@@ -1,0 +1,55 @@
+IOC/DI
+IOC(Inversion of Control)控制反转：所谓控制反转，就是把原先我们代码里面需要实现的对象创建、依赖的代码，反转给容器来帮忙实现。（IOC容器，也就是一个Map）
+
+DI(DependencyInjection)依赖注入：就是指对象是被动接受依赖类而不是自己主动去找，换句话说 就是指对象不是从容器中查找它依赖的类，
+而是在容器实例化对象的时候主动将它依赖的类注入给它。根据描述对象关系的文件查找注入
+
+Spring的核心
+
+
+
+1、BeanFactory 创建Bean的工厂（FactoryBean 工厂类型的的Bean）
+
+
+BeanFactory是一个最顶层的接口，定义了IOC容器的基本功能规范
+
+
+2、BeanDefinition 
+
+SpringIOC 容器管理了我们定义的各种 Bean 对象及其相互的关系，Bean 对象在 Spring 实现中是 以 BeanDefinition 来描述的。
+在手写SpringIOC中   BeanDefinition承担的责任是用于保存配置文件中的信息。预计Spring源码中相同。
+
+
+3、IOC容器的初始化
+
+IOC 容器的初始化包括 BeanDefinition 的 Resource 定位、载入和注册这三个基本的过程。
+目前理解就是将配置文件中的信息读取到BeanDefinition中，然后通过对其中的对象实例化并注入，将结果存放到一个IOC容器中（Map）
+
+定位就是通过setConfigLocations(configLocations)方法设置 Bean 定义资源文件的定位路径。
+
+加载过程：AbstractApplicationContext中的refresh()方法是IOC容器初始化的主要入口，启动整个 IOC 容器对 Bean 定义的载入过程。
+在新建立好的容器中对容器进行初始化，对 Bean 定义资源进行载入 。
+refresh中通过调用xxReader类中的loadBeanDefinitions方法来进行加载，loadBeanDefinitions 的作用是返回定位时的BeanDefinitions（存放资源文件信息的List）
+资源加载器获取要读入的资源：XmlBeanDefinitionReader 通过调用其父类 DefaultResourceLoader 的 getResource 方法获取要 加载的资源
+
+资源加载到的Bean信息一般通过DocumentLoader将其转化成Document对象用于解析
+
+注册：解析过后的 BeanDefinition 在 IOC 容器中的注册。
+
+
+4、依赖注入
+(1).用户第一次通过 getBean 方法向 IOC 容索要 Bean 时，IOC 容器触发依赖注入。 
+(2).当用户在 Bean 定义资源中为<bean>元素配置了 lazy-init 属性，即让容器在解析注册 Bean 定义 时进行预实例化，触发依赖注入。（延时加载默认是false，也就是都会在IOC初始化后自动注入）
+
+通过getBean()方法获取到注册好的实例。如果是单例模式，则从缓存中查找，确保容器中只有一个对象；如果为原型模式，容器则会创建一个新的实例。
+
+具体的依赖注入实现在以下两个方法中： 
+(1).createBeanInstance：生成 Bean 所包含的 java 对象实例。 
+(2).populateBean ：对 Bean 属性的依赖注入进行处理。  （ BeanWrapper .setPropertyValues ）
+
+具体实现
+(1).对于集合类型的属性，将其属性值解析为目标类型的集合后直接赋值给属性。
+(2).对于非集合类型的属性，大量使用了 JDK 的反射和内省机制，通过属性的 getter 方法(reader Method)获取指定属性注入以前的值，
+同时调用属性的 setter 方法(writer Method)为属性设置注入 后的值。
+
+
