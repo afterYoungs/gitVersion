@@ -1,0 +1,38 @@
+1.类级别的注解：如@Component、@Repository、@Controller、@Service
+ 以及 JavaEE6 的 @ManagedBean 和@Named 注解，
+都是添加在类上面的类级别注解，Spring 容器根据注解的过滤规则扫 
+描读取注解 Bean 定义类，并将其注册到 Spring IOC 容器中。 
+
+@Component、@Repository、@Controller、@Service都是代表Bean
+
+
+@Controller应用在DispatchServlet上 
+
+
+2.类内部的注解：如@Autowire、@Value、@Resource 以及 EJB 和 WebService 相关的注解等，
+都 是添加在类内部的字段或者方法上的类内部注解， 
+SpringIOC 容器通过 Bean 后置注解处理器解析 Bean 内部的注解。 
+
+@Value 可以设置值注入
+
+
+管理注解Bean定义的容器有两个：AnnotationConfigApplicationContext 和 AnnotationConfigWebApplicationContex（上一个的WEB版本）。这两个对注解的处理没有区别。
+
+Spring 对注解的处理分为两种方式：
+(1).直接将注解 Bean 注册到容器中：
+可以在初始化容器时注册；也可以在容器创建之后手动调用注册方法向容器注册，然后通过手动刷新容
+器，使得容器对注册的注解 Bean 进行处理。
+(2).通过扫描指定的包及其子包下的所有类：
+在初始化注解容器时指定要自动扫描的路径，如果容器创建以后向给定路径动态添加了注解 Bean，则
+需要手动调用容器扫描的方法，然后手动刷新容器，使得容器对所注册的 Bean 进行处理。
+
+AnnotationConfigApplicationContext注册注解 Bean 定义类的基本步骤：
+a，需要使用注解元数据解析器解析注解 Bean 中关于作用域的配置。
+b，使用 AnnotationConfigUtils 的 processCommonDefinitionAnnotations 方法处理注解 Bean
+定义类中通用的注解。
+c，使用 AnnotationConfigUtils 的 applyScopedProxyMode 方法创建对于作用域的代理对象。
+d，通过 BeanDefinitionReaderUtils 向容器注册 Bean。
+
+AnnotationConfigApplicationContext扫描注解
+扫描给定包及其子包的类
+载入注解 Bean 定义
